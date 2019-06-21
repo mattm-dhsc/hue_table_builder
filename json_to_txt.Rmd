@@ -1,0 +1,53 @@
+---
+title: "json_to_txt"
+author: "Matthew Malcher"
+date: "21 June 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require(jsonlite)
+```
+
+# Introduction
+
+NHSD have published a [guide](https://digital.nhs.uk/binaries/content/assets/website-assets/services/data-access-environment-dae/accessing-hes-with-dae.pdf) on how to access HES using DAE. This goes through
+the process of how to export a query, which notes that the query is output in
+JSON format, but does not tell you how to extract the plaintext of the query
+you ran.
+ 
+This document shows how to take a query JSON downloaded from DAE and extract
+the plaintext query.
+
+# Demo
+
+Define the name of the JSON file downloaded by HUE
+```{r}
+query_name <- 'los_interface_xcheck.json'
+```
+
+Read a function written to extract queries from HUE JSON files.
+```{r}
+source('get_query.R')
+```
+
+Apply this function to get the SQL code
+```{r}
+sql_code <-
+  get_query_from_json(
+    json_file = file.path('queries', 
+                          query_name)
+  )
+```
+
+Write the query out to a new file, named using the JSON file name
+```{r}
+fileConn <- 
+  file(file.path('output', sub('.json','.txt', query_name)))
+
+writeLines(sql_code, fileConn)
+
+close(fileConn)
+```
+

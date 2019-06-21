@@ -1,0 +1,19 @@
+select 
+    lookup.utla16cd as UTLA,
+    (percentile(apc.speldur,0.9)) as los_p90--,
+    --(year(apc.disdate)) as year,
+    --(month(apc.disdate)) as month
+from hes_apc_1718 as apc
+left join matthew_malcher.lt2utla16 as lookup
+    on apc.resladst_ons = lookup.ltla16cd
+where 
+    apc.classpat = '1' and
+    apc.admimeth in ('21','22','23','24','25','28', '2A', '2B', '2C', '2D') and
+    apc.startage between 65 and 110 and
+    apc.fde = 1
+group by
+    lookup.utla16cd--,
+    --(year(apc.disdate))--,
+    --(month(apc.disdate))
+    
+    
