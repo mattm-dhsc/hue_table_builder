@@ -1,0 +1,41 @@
+/* Clear table if query has been run before*/
+
+drop table if exists matthew_malcher.emad;
+
+/* 
+Create table - this is a workaround to enable the user exports.
+Running the query in the user exports dialogue does not work, so instead, run this within HUE, then, in the export interface run:
+select * from matthew_malcher.emad
+*/
+create table matthew_malcher.emad as
+
+select 
+    lookup.utla16cd as UTLA,
+   --(year(admidate)) as yr,
+   --(month(admidate)) as mth, 
+   (sum(apc.fae)) as fae_sum 
+   
+from hes_apc_1718 as apc
+
+left join matthew_malcher.lt2utla16 as lookup
+
+    on apc.resladst_ons = lookup.ltla16cd
+    
+where apc.classpat = 1 and 
+    apc.admimeth in ('21','22','23','24','25','28','2A','2B','2C','2D') and
+    apc.fae = 1 and
+    apc.startage between 65 and 110
+group by 
+    lookup.utla16cd--,
+    --(year(apc.disdate))--,
+    --(month(apc.disdate))
+    
+;
+
+SELECT * from matthew_malcher.emad
+
+/*
+QA Note MM 26/06/19 - this query has effectively been QA'd as you can use it to reproduce the published numbers in the ASC interface dashboard.
+https://www.gov.uk/government/publications/local-area-performance-metrics-and-ambitions
+Numbers nearly (~+-20 at most for Trafford / Northamptonshire) match Full Dashboard - Column L, as published 4 September 2018: https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/737812/nhs-asc-interface-dashboard-aug-2018.ods
+*/

@@ -1,3 +1,14 @@
+/* Clear table if query has been run before*/
+
+drop table if exists matthew_malcher.los_p90;
+
+/* 
+Create table - this is a workaround to enable the user exports.
+Running the query in the user exports dialogue does not work, so instead, run this within HUE, then, in the export interface run:
+select * from matthew_malcher.los_p90
+*/
+create table matthew_malcher.los_p90 as
+
 select 
     lookup.utla16cd as UTLA,
     (percentile(apc.speldur,0.9)) as los_p90--,
@@ -16,4 +27,12 @@ group by
     --(year(apc.disdate))--,
     --(month(apc.disdate))
     
+    ;
     
+SELECT * from matthew_malcher.los_p90
+
+/*
+QA Note MM 26/06/19 - this query has effectively been QA'd as you can use it to reproduce the published numbers in the ASC interface dashboard.
+https://www.gov.uk/government/publications/local-area-performance-metrics-and-ambitions
+Numbers (with the exception of City of London) match Full Dashboard - Column Q, as published 4 September 2018: https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/737812/nhs-asc-interface-dashboard-aug-2018.ods
+*/
