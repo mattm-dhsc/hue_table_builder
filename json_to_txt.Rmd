@@ -24,7 +24,12 @@ the plaintext query.
 
 Define the name of the JSON file downloaded by HUE
 ```{r}
-query_name <- 'los_interface_xcheck.json'
+query_names <-
+  c(
+    'create_ut2ltla_lookup_16.json',
+    'los_interface_xcheck.json',
+    'emad_interface_xcheck.json'
+  )
 ```
 
 Read a function written to extract queries from HUE JSON files.
@@ -32,22 +37,26 @@ Read a function written to extract queries from HUE JSON files.
 source('get_query.R')
 ```
 
-Apply this function to get the SQL code
+Build a function, which takes the name of a JSON query and produces a plaintext version
 ```{r}
-sql_code <-
-  get_query_from_json(
-    json_file = file.path('queries', 
-                          query_name)
-  )
+translate_json <-
+  function(query_name) {
+    sql_code <-
+      get_query_from_json(json_file = file.path('queries',
+                                                query_name))
+    
+    fileConn <-
+      file(file.path('output', sub('.json', '.txt', query_name)))
+    
+    writeLines(sql_code, fileConn)
+    
+    close(fileConn)
+    
+  }
 ```
 
-Write the query out to a new file, named using the JSON file name
+Apply the Function to our list of queries
 ```{r}
-fileConn <- 
-  file(file.path('output', sub('.json','.txt', query_name)))
-
-writeLines(sql_code, fileConn)
-
-close(fileConn)
+lapply(query_names,translate_json)
 ```
 
